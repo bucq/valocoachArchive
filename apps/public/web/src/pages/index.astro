@@ -1,0 +1,177 @@
+---
+import FilterPanel from '../components/FilterPanel';
+import VideoGrid from '../components/VideoGrid';
+import type { FiltersResponse, VideoFilters } from '../lib/api';
+import '../styles/global.css';
+import '../styles/valo.css';
+
+const API_BASE = import.meta.env.API_BASE_URL;
+
+let filters: FiltersResponse = { maps: [], agents: [], ranks: [], coaches: [] };
+try {
+  const res = await fetch(`${API_BASE}/api/videos/filters`);
+  if (res.ok) filters = await res.json();
+} catch {
+  // API not running locally — ignore
+}
+
+const url = new URL(Astro.request.url);
+const initialFilters: VideoFilters = {
+  map:   url.searchParams.get('map')   ?? undefined,
+  agent: url.searchParams.get('agent') ?? undefined,
+  rank:  url.searchParams.get('rank')  ?? undefined,
+  coach: url.searchParams.get('coach') ?? undefined,
+  page:  Number(url.searchParams.get('page') ?? '1'),
+};
+
+const siteUrl = 'https://valocoach-archive.pages.dev';
+const ogImage = `${siteUrl}/logo.png`;
+---
+
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/logo.png" />
+
+    <!-- Primary meta -->
+    <title>ValoCoach Archive — Valorant コーチング動画アーカイブ</title>
+    <meta name="description" content="Valorant（バロラント）のコーチング動画アーカイブ。map・agent・rank・coachで絞り込んで上達に役立つ解説動画を探せます。" />
+    <meta name="keywords" content="valorant coaching, バロラント コーチング, valorant 上達, valorant コーチング動画, valorant archive" />
+    <meta name="theme-color" content="#0F1923" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="ValoCoach Archive — Valorant コーチング動画アーカイブ" />
+    <meta property="og:description" content="Valorantのコーチング動画をmap・agent・rank・coachで絞り込んで検索・視聴できるアーカイブサービス" />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
+    <meta property="og:url" content={siteUrl} />
+    <meta property="og:site_name" content="ValoCoach Archive" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="ValoCoach Archive — Valorant Coaching Archive" />
+    <meta name="twitter:description" content="Valorantのコーチング動画をmap・agent・rank・coachでフィルタリング" />
+    <meta name="twitter:image" content={ogImage} />
+  </head>
+  <body>
+
+    <!-- ヘッダー -->
+    <header style="
+      background: var(--c-surface);
+      border-bottom: 1px solid var(--c-border-dim);
+      position: relative;
+      overflow: hidden;
+    ">
+      <!-- 赤いアクセントライン（下部） -->
+      <div style="
+        position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+        background: linear-gradient(90deg, transparent, var(--c-red), transparent);
+        opacity: 0.6;
+      "></div>
+
+      <div style="max-width: 1600px; margin: 0 auto; padding: 8px 24px; display: flex; align-items: center; gap: 16px;">
+
+        <!-- ロゴ画像 + テキスト -->
+        <a href="/" style="display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0;">
+          <img
+            src="/logo.png"
+            alt="ValoCoach Archive"
+            width="44"
+            height="44"
+            style="
+              object-fit: contain;
+              filter: drop-shadow(0 0 8px rgba(255,70,85,0.35));
+              transition: filter 0.2s;
+            "
+            onmouseover="this.style.filter='drop-shadow(0 0 14px rgba(255,70,85,0.65))'"
+            onmouseout="this.style.filter='drop-shadow(0 0 8px rgba(255,70,85,0.35))'"
+          />
+          <div>
+            <div class="font-rajdhani" style="
+              font-size: 20px;
+              font-weight: 700;
+              letter-spacing: 0.14em;
+              text-transform: uppercase;
+              color: var(--c-text);
+              line-height: 1.1;
+            ">
+              VALO<span style="color: var(--c-red);">COACH</span>
+            </div>
+            <div class="font-condensed" style="
+              font-size: 9px;
+              letter-spacing: 0.2em;
+              text-transform: uppercase;
+              color: var(--c-faint);
+              margin-top: 1px;
+            ">Coaching Archive</div>
+          </div>
+        </a>
+
+        <!-- セパレーター -->
+        <div style="width: 1px; height: 28px; background: var(--c-border); flex-shrink: 0;"></div>
+
+        <!-- タグライン -->
+        <p class="font-condensed" style="
+          font-size: 11px;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: var(--c-muted);
+        ">
+          Valorant · Map · Agent · Rank · Coach
+        </p>
+
+        <div style="flex: 1;"></div>
+
+        <!-- ステータスインジケーター -->
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <div class="live-dot"></div>
+          <span class="font-rajdhani" style="
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--c-muted);
+          ">LIVE</span>
+        </div>
+      </div>
+    </header>
+
+    <style>
+      .live-dot {
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        background: #2DC97E;
+        box-shadow: 0 0 8px #2DC97E;
+        animation: pulse-dot 2s ease-in-out infinite;
+      }
+      @keyframes pulse-dot {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(0.8); }
+      }
+    </style>
+
+    <!-- フィルターパネル（React Island） -->
+    <FilterPanel
+      client:load
+      availableFilters={filters}
+      initialFilters={initialFilters}
+    />
+
+    <!-- 動画グリッド（React Island） -->
+    <main>
+      <VideoGrid
+        client:load
+        apiBase={API_BASE}
+        initialFilters={initialFilters}
+      />
+    </main>
+
+  </body>
+</html>

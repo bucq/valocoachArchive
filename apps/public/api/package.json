@@ -1,0 +1,29 @@
+{
+  "name": "valocoach-archive-api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev src/index.ts",
+    "build": "tsc",
+    "deploy": "wrangler deploy",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate:local": "wrangler d1 migrations apply valocoach-archive --local",
+    "db:migrate:remote": "wrangler d1 migrations apply valocoach-archive --remote",
+    "db:studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "@valocoach/valorant": "workspace:*",
+    "@hono/zod-validator": "^0.7.6",
+    "drizzle-orm": "^0.40.1",
+    "hono": "^4.7.4",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250224.0",
+    "@types/node": "^25.3.1",
+    "drizzle-kit": "^0.30.5",
+    "typescript": "^5.8.2",
+    "wrangler": "^4.50.0"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "valocoach-archive",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev:web": "pnpm --filter valocoach-archive-web dev",
+    "dev:api": "pnpm --filter valocoach-archive-api dev",
+    "dev:admin-web": "pnpm --filter admin_studio-web dev",
+    "dev:admin-api": "pnpm --filter admin_studio-api dev",
+    "build:web": "pnpm --filter valocoach-archive-web build",
+    "build:api": "pnpm --filter valocoach-archive-api build",
+    "deploy:api": "pnpm --filter valocoach-archive-api deploy",
+    "deploy:web": "pnpm --filter valocoach-archive-web deploy",
+    "dev:admin": "pnpm --parallel --filter \"admin_studio-*\" dev"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  }
+}

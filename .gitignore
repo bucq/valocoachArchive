@@ -1,0 +1,34 @@
+# 依存パッケージ
+node_modules/
+.pnpm-store/
+
+# ビルド成果物
+dist/
+.astro/
+
+# 環境変数（シークレットを含む）
+.env
+.env.*
+!.env.*.example
+!.env.example
+.dev.vars
+
+# Wrangler
+.wrangler/
+
+# D1エクスポート一時ファイル
+*.sql
+
+# TypeScript
+*.tsbuildinfo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.idea/
+*.swp
+
+# Logs
+*.log

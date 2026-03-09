@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm wrangler d1 execute valocoach-archive --remote --command \"SELECT id, title FROM videos LIMIT 5;\")",
+      "Bash(pnpm wrangler pages deployment list --project-name valocoach-archive-web)",
+      "Bash(pnpm wrangler pages project list)",
+      "Bash(pnpm wrangler pages deployment list --project-name valocoach-archive)",
+      "Bash(pnpm wrangler d1 execute valocoach-archive --local --command \"UPDATE videos SET ai_tagging_status = ''pending'', llm_reasoning = NULL, aiTaggedAt = NULL;\")",
+      "Bash(pnpm wrangler d1 execute valocoach-archive --local --command \"UPDATE videos SET ai_tagging_status = ''pending'', llm_reasoning = NULL, ai_tagged_at = NULL;\")",
+      "Bash(curl -s -X POST http://localhost:8787/api/admin/reset-tagging -H \"Authorization: Bearer dummy_secret\")",
+      "WebFetch(domain:docs.claude.com)"
+    ]
+  },
+  "enabledPlugins": {
+    "frontend-design@claude-plugins-official": true
+  }
+}

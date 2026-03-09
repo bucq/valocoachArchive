@@ -1,0 +1,23 @@
+name = "valocoach-archive-api"
+main = "src/index.ts"
+compatibility_date = "2024-11-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "valocoach-archive"
+database_id = "6a524cbd-fdb7-441f-a28b-e9ee9755ed79"
+migrations_dir = "src/db/migrations"
+
+
+# [triggers]
+# crons = ["0 0 * * *"]
+
+[vars]
+# ローカル開発用（本番は `wrangler secret put ADMIN_TOKEN` でセット）
+ADMIN_TOKEN = "dev-admin-token"
+
+[dev]
+# ローカル開発時に外部ネットワークへのfetchを許可
+ip = "0.0.0.0"
+
