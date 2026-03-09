@@ -1,3 +1,5 @@
+/** biome-ignore-all lint/a11y/useKeyWithClickEvents: backdrop <div> onClick is supplementary; keyboard dismissal is handled via ESC key (useEffect) and the × button */
+
 import { useEffect, useRef, useState } from 'react';
 import { submitCorrection } from '../lib/api';
 import { AGENT_ICONS, MAP_ICONS, RANK_ICONS } from '../lib/valorant-assets';
@@ -247,6 +249,7 @@ export default function CorrectionModal({
   };
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: backdrop click-to-close is supplementary; ESC key and × button handle keyboard access
     <div
       style={{
         position: 'fixed',
@@ -274,6 +277,7 @@ export default function CorrectionModal({
       >
         {/* Close button */}
         <button
+          type="button"
           onClick={onClose}
           style={{
             position: 'absolute',
@@ -510,6 +514,7 @@ export default function CorrectionModal({
         {/* Submit button */}
         {status !== 'success' && (
           <button
+            type="button"
             onClick={handleSubmit}
             disabled={!hasChange || status === 'submitting'}
             style={{

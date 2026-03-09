@@ -53,6 +53,7 @@ export default function Sidebar({ current, onNavigate }: Props) {
           const active = current === item.id;
           return (
             <button
+              type="button"
               key={item.id}
               onClick={() => onNavigate(item.id)}
               className="animate-in w-full flex items-center gap-3 px-5 py-3 text-left transition-colors relative"

@@ -305,10 +305,10 @@ export default function VideoListPage() {
             <option value="individual">Individual</option>
             <option value="team">Team</option>
           </select>
-          <button onClick={handleSearch} className="btn btn-accent">
+          <button type="button" onClick={handleSearch} className="btn btn-accent">
             検索
           </button>
-          <button onClick={handleReset} className="btn btn-ghost">
+          <button type="button" onClick={handleReset} className="btn btn-ghost">
             リセット
           </button>
         </div>
@@ -491,6 +491,7 @@ export default function VideoListPage() {
                   <td>
                     <div className="flex flex-col gap-1">
                       <button
+                        type="button"
                         onClick={() => handleSave(v)}
                         className="btn btn-info"
                         style={{
@@ -502,6 +503,7 @@ export default function VideoListPage() {
                         保存
                       </button>
                       <button
+                        type="button"
                         onClick={() => handleToggleHide(v)}
                         className="btn btn-danger"
                         style={{
@@ -526,6 +528,7 @@ export default function VideoListPage() {
       {totalPages > 1 && (
         <div className="flex items-center gap-3">
           <button
+            type="button"
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
             className="btn btn-ghost"
@@ -539,6 +542,7 @@ export default function VideoListPage() {
             {page} / {totalPages} &nbsp;·&nbsp; {total.toLocaleString()} items
           </span>
           <button
+            type="button"
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
             className="btn btn-ghost"

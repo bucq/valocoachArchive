@@ -523,6 +523,7 @@ export default function ReviewPage() {
 
                   {/* AGENT + RANK — アイコン付きドロップダウン */}
                   <div className="flex gap-2 flex-wrap">
+                    {/* biome-ignore lint/a11y/noLabelWithoutControl: IconSelect renders a select */}
                     <label className="flex flex-col gap-0.5">
                       <span
                         className="text-faint"
@@ -544,6 +545,7 @@ export default function ReviewPage() {
                         onChange={(val) => setField(v.id, 'agent', val)}
                       />
                     </label>
+                    {/* biome-ignore lint/a11y/noLabelWithoutControl: IconSelect renders a select */}
                     <label className="flex flex-col gap-0.5">
                       <span
                         className="text-faint"
@@ -594,6 +596,7 @@ export default function ReviewPage() {
               {/* Action buttons */}
               <div className="flex flex-col gap-2 shrink-0 justify-start">
                 <button
+                  type="button"
                   onClick={() => handleCorrect(v)}
                   className="btn btn-info"
                   style={{ fontSize: '0.75rem', padding: '0.35em 0.9em' }}
@@ -601,6 +604,7 @@ export default function ReviewPage() {
                   修正して承認
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleApprove(v)}
                   className="btn btn-ok"
                   style={{ fontSize: '0.75rem', padding: '0.35em 0.9em' }}
@@ -608,6 +612,7 @@ export default function ReviewPage() {
                   そのまま承認
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleReject(v)}
                   className="btn btn-danger"
                   style={{ fontSize: '0.75rem', padding: '0.35em 0.9em' }}
@@ -624,6 +629,7 @@ export default function ReviewPage() {
       {total > 20 && (
         <div className="flex items-center gap-3">
           <button
+            type="button"
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
             className="btn btn-ghost"
@@ -637,6 +643,7 @@ export default function ReviewPage() {
             p.{page}
           </span>
           <button
+            type="button"
             onClick={() => setPage((p) => p + 1)}
             disabled={videos.length < 20}
             className="btn btn-ghost"

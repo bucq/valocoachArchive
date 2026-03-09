@@ -106,6 +106,7 @@ export default function VideoGrid({ apiBase, initialFilters }: Props) {
           >
             {Array.from({ length: 12 }).map((_, i) => (
               <div
+                // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton list
                 key={i}
                 className="clip-br"
                 style={{
@@ -204,6 +205,7 @@ export default function VideoGrid({ apiBase, initialFilters }: Props) {
             }}
           >
             <button
+              type="button"
               className="page-btn"
               onClick={() => {
                 const p = page - 1;
@@ -226,6 +228,7 @@ export default function VideoGrid({ apiBase, initialFilters }: Props) {
               {String(page).padStart(2, '0')} / {String(totalPages).padStart(2, '0')}
             </span>
             <button
+              type="button"
               className="page-btn"
               onClick={() => {
                 const p = page + 1;

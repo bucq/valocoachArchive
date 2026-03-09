@@ -1,4 +1,4 @@
-import { type CSSProperties, useEffect, useRef, useState } from 'react';
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
 import { apiFetch, type StatsResponse } from '../lib/api.ts';
 import { useSSE } from '../lib/useSSE.ts';
 
@@ -25,14 +25,15 @@ export default function TagPage() {
   const { logs, running, error, start } = useSSE<TagEvent>();
   const logRef = useRef<HTMLDivElement>(null);
 
-  const fetchStats = () => {
+  const fetchStats = useCallback(() => {
     apiFetch<StatsResponse>('/api/videos/stats').then(setStats).catch(console.error);
-  };
+  }, []);
 
   useEffect(() => {
     fetchStats();
-  }, []);
+  }, [fetchStats]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: logs is a trigger dep; not read inside the effect body
   useEffect(() => {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
   }, [logs]);
@@ -135,7 +136,7 @@ export default function TagPage() {
             <span>ドライラン（DB更新しない）</span>
           </label>
         </div>
-        <button onClick={handleStart} disabled={running} className="btn btn-accent">
+        <button type="button" onClick={handleStart} disabled={running} className="btn btn-accent">
           {running ? (
             <>
               <span className="live-dot" style={{ marginRight: '0.4em' }} />
@@ -194,7 +195,11 @@ export default function TagPage() {
           <div ref={logRef} className="terminal-body" style={{ height: '18rem' }}>
             {error && <p style={{ color: '#FF4655' }}>ERROR: {error}</p>}
             {logs.map((ev, i) => (
-              <TagLogLine key={i} event={ev} />
+              <TagLogLine 
+                // biome-ignore lint/suspicious/noArrayIndexKey:  append-only SSE log; items are never reordered or removed
+                key={i} 
+                event={ev} 
+              />
             ))}
           </div>
         </div>
@@ -206,7 +211,7 @@ export default function TagPage() {
         <p className="text-dim" style={{ fontSize: '0.82rem' }}>
           complete / skipped / failed を pending に戻します（再タグ付け用）。
         </p>
-        <button onClick={handleReset} className="btn btn-danger">
+        <button type="button" onClick={handleReset} className="btn btn-danger">
           リセット実行
         </button>
         {resetMsg && (
@@ -258,3 +263,4 @@ function TagLogLine({ event }: { event: TagEvent }) {
       return <p style={{ color: '#888896' }}>{JSON.stringify(event)}</p>;
   }
 }
+

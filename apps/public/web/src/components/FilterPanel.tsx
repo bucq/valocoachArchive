@@ -70,12 +70,21 @@ export default function FilterPanel({ availableFilters, initialFilters }: Props)
         >
           {/* FILTERS ボタン */}
           <button
+            type="button"
             className={`filter-toggle-btn${isOpen ? ' open' : ''}`}
             onClick={toggleOpen}
             aria-expanded={isOpen}
+            aria-label="フィルターを開く"
           >
             {/* フィルターアイコン（三本線） */}
-            <svg width="12" height="10" viewBox="0 0 12 10" fill="none" style={{ flexShrink: 0 }}>
+            <svg
+              width="12"
+              height="10"
+              viewBox="0 0 12 10"
+              fill="none"
+              aria-hidden="true"
+              style={{ flexShrink: 0 }}
+            >
               <line
                 x1="0"
                 y1="1"
@@ -110,6 +119,7 @@ export default function FilterPanel({ availableFilters, initialFilters }: Props)
               height="4"
               viewBox="0 0 7 4"
               fill="none"
+              aria-hidden="true"
               style={{
                 transition: 'transform 0.25s ease',
                 transform: isOpen ? 'rotate(0deg)' : 'rotate(-90deg)',
@@ -189,6 +199,7 @@ export default function FilterPanel({ availableFilters, initialFilters }: Props)
           {/* Clear All */}
           {hasActiveFilters && (
             <button
+              type="button"
               className="clear-btn"
               onClick={clearAll}
               style={{ flexShrink: 0, padding: '4px 10px', fontSize: '10px' }}
@@ -214,6 +225,7 @@ export default function FilterPanel({ availableFilters, initialFilters }: Props)
               <div style={{ display: 'flex', gap: '6px' }}>
                 {(['individual', 'team'] as const).map((type) => (
                   <button
+                    type="button"
                     key={type}
                     onClick={() => update('coachingType', type)}
                     style={{
@@ -331,6 +343,7 @@ function ActiveFilterBadge({
 
   return (
     <button
+      type="button"
       className="active-filter-badge"
       onClick={onRemove}
       title={`Remove ${label}`}
@@ -416,6 +429,7 @@ function MapChip({
   const icon = MAP_ICONS[name];
   return (
     <button
+      type="button"
       onClick={onClick}
       title={name}
       style={{
@@ -536,6 +550,7 @@ function AgentChip({
   const icon = AGENT_ICONS[name];
   return (
     <button
+      type="button"
       onClick={onClick}
       title={name}
       style={{
@@ -626,6 +641,7 @@ function RankChip({
   const icon = RANK_ICONS[rank];
   return (
     <button
+      type="button"
       onClick={onClick}
       title={rank}
       style={{

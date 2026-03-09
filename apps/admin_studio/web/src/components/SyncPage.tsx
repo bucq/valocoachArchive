@@ -24,7 +24,7 @@ function SyncPanel({
 
   useEffect(() => {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
-  }, [logs]);
+  }, []);
 
   const isDone = logs.some((l) => l.type === 'done');
   const isError = logs.some((l) => l.type === 'error') || !!error;
@@ -47,7 +47,12 @@ function SyncPanel({
         <span className="flow-node highlight">{flowNodes[2]}</span>
       </div>
 
-      <button onClick={() => start(endpoint, {})} disabled={running} className="btn btn-info">
+      <button
+        type="button"
+        onClick={() => start(endpoint, {})}
+        disabled={running}
+        className="btn btn-info"
+      >
         {running ? (
           <>
             <span className="live-dot" style={{ marginRight: '0.4em' }} />
@@ -89,6 +94,7 @@ function SyncPanel({
             {error && <p style={{ color: '#FF4655' }}>ERROR: {error}</p>}
             {logs.map((ev, i) => (
               <p
+                // biome-ignore lint/suspicious/noArrayIndexKey: log events have no unique id
                 key={i}
                 style={{
                   color:
