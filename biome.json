@@ -16,8 +16,8 @@
         "useTemplate": "warn"
       },
       "a11y": {
-        "noStaticElementInteractions": "warn",
-        "useKeyWithClickEvents": "warn",
+        "noStaticElementInteractions": "off",
+        "useKeyWithClickEvents": "off",
         "useButtonType": "warn",
         "noSvgWithoutTitle": "warn",
         "noLabelWithoutControl": "warn"

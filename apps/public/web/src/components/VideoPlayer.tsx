@@ -19,7 +19,6 @@ export default function VideoPlayer({ videoId, onClose }: Props) {
   }, [onClose]);
 
   return (
-    // biome-ignore lint/a11y/noStaticElementInteractions: モーダル背景のクリック閉じ
     <div
       className="player-backdrop"
       role="presentation"

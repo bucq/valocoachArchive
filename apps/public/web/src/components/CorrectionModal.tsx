@@ -249,7 +249,6 @@ export default function CorrectionModal({
   };
 
   return (
-    // biome-ignore lint/a11y/noStaticElementInteractions: backdrop click-to-close is supplementary; ESC key and × button handle keyboard access
     <div
       style={{
         position: 'fixed',
