@@ -1,8 +1,5 @@
 pre-commit:
   commands:
-    format:
-      run: pnpm biome check --write .
-      stage_fixed: true
     lint:
       run: pnpm biome check .
     test:

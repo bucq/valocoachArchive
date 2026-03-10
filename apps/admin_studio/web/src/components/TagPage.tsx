@@ -195,10 +195,10 @@ export default function TagPage() {
           <div ref={logRef} className="terminal-body" style={{ height: '18rem' }}>
             {error && <p style={{ color: '#FF4655' }}>ERROR: {error}</p>}
             {logs.map((ev, i) => (
-              <TagLogLine 
+              <TagLogLine
                 // biome-ignore lint/suspicious/noArrayIndexKey:  append-only SSE log; items are never reordered or removed
-                key={i} 
-                event={ev} 
+                key={i}
+                event={ev}
               />
             ))}
           </div>
@@ -263,4 +263,3 @@ function TagLogLine({ event }: { event: TagEvent }) {
       return <p style={{ color: '#888896' }}>{JSON.stringify(event)}</p>;
   }
 }
-

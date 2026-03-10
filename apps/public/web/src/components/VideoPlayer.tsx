@@ -19,17 +19,22 @@ export default function VideoPlayer({ videoId, onClose }: Props) {
   }, [onClose]);
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: モーダル背景のクリック閉じ
     <div
       className="player-backdrop"
+      role="presentation"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') onClose();
       }}
     >
       <div className="player-container">
         {/* 閉じるボタン */}
-        <button className="player-close" onClick={onClose} aria-label="Close player">
+        <button type="button" className="player-close" onClick={onClose} aria-label="Close player">
           <span>ESC</span>
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true">
             <path
               d="M1 1l10 10M11 1L1 11"
               stroke="currentColor"

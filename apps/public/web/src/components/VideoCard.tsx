@@ -26,7 +26,7 @@ export default function VideoCard({ video, onClick, onReport }: Props) {
   const rankClass = video.rank ? RANK_CLASS[video.rank] : null;
 
   return (
-    <button className="valo-card" onClick={() => onClick(video.id)}>
+    <button type="button" className="valo-card" onClick={() => onClick(video.id)}>
       {/* スキャンライン（ホバーアニメーション） */}
       <div className="scan-line" />
 
@@ -87,6 +87,7 @@ export default function VideoCard({ video, onClick, onReport }: Props) {
           }}
           className="play-btn-overlay"
         >
+          {/** biome-ignore lint/a11y/noSvgWithoutTitle: false positive */}
           <svg width="16" height="16" viewBox="0 0 16 16" fill="white">
             <polygon points="5,2 14,8 5,14" />
           </svg>
@@ -191,6 +192,7 @@ export default function VideoCard({ video, onClick, onReport }: Props) {
             </span>
           )}
           <button
+            type="button"
             onClick={(e) => {
               e.stopPropagation();
               onReport(video);

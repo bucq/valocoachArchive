@@ -29,6 +29,7 @@ export default function CollectPage() {
       .catch(console.error);
   }, []);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: logsが更新されるたびに末尾へスクロール
   useEffect(() => {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
   }, [logs]);
@@ -76,15 +77,16 @@ export default function CollectPage() {
         ) : (
           <div className="flex flex-wrap gap-1.5">
             {channels.map((c) => (
-              <span
+              <button
                 key={c.id}
+                type="button"
                 className={`channel-chip${c.placeholder ? ' placeholder' : ''}`}
                 onClick={() => {
                   if (!c.placeholder) setChannelId(c.id);
                 }}
               >
-                {c.placeholder ? c.id : c.id.slice(0, 12) + '…'}
-              </span>
+                {c.placeholder ? c.id : `${c.id.slice(0, 12)}…`}
+              </button>
             ))}
           </div>
         )}
@@ -99,6 +101,7 @@ export default function CollectPage() {
             登録済み全チャンネルの動画をDBに追加します。
           </p>
           <button
+            type="button"
             onClick={collectAll}
             disabled={running}
             className="btn btn-accent w-full"
@@ -125,6 +128,7 @@ export default function CollectPage() {
             onChange={(e) => setChannelId(e.target.value)}
           />
           <button
+            type="button"
             onClick={collectOne}
             disabled={running || !channelId.trim()}
             className="btn btn-ghost w-full"
@@ -175,6 +179,7 @@ export default function CollectPage() {
             </span>
           </div>
           <button
+            type="button"
             onClick={collectSearch}
             disabled={running || !searchQuery.trim()}
             className="btn btn-ghost w-full"
@@ -207,6 +212,7 @@ export default function CollectPage() {
           <div ref={logRef} className="terminal-body" style={{ height: '20rem' }}>
             {error && <p style={{ color: '#FF4655' }}>ERROR: {error}</p>}
             {logs.map((ev, i) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: 追記専用ログのためインデックスで安全
               <LogLine key={i} event={ev} />
             ))}
           </div>
@@ -230,7 +236,7 @@ function LogLine({ event }: { event: CollectEvent }) {
   let text = '';
   switch (event.type) {
     case 'channel_start':
-      text = `[${event.channelId}] 収集開始${event.message ? ' — ' + event.message : ''}`;
+      text = `[${event.channelId}] 収集開始${event.message ? ` — ${event.message}` : ''}`;
       break;
     case 'channel_done':
       text = `[${event.channelId}] 完了 取得:${event.fetched} コーチング:${event.coaching} フィルタ:${event.filtered}`;

@@ -1,12 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  AGENT_ALIAS_MAP,
-  AGENTS,
-  MAP_ALIAS_MAP,
-  MAPS,
-  RANK_ALIAS_MAP,
-  RANKS,
-} from '../index';
+import { AGENT_ALIAS_MAP, AGENTS, MAP_ALIAS_MAP, MAPS, RANK_ALIAS_MAP, RANKS } from '../index';
 
 describe('MAP_ALIAS_MAP', () => {
   it('ascent → Ascent', () => {

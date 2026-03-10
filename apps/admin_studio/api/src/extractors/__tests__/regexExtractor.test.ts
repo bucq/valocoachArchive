@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  detectCoachingType,
-  isValorantCoachingVideo,
-  regexExtract,
-} from '../regexExtractor';
+import { detectCoachingType, isValorantCoachingVideo, regexExtract } from '../regexExtractor';
 
 describe('isValorantCoachingVideo', () => {
   describe('真陽性 (true positives)', () => {
@@ -150,10 +146,10 @@ describe('regexExtract', () => {
 
   describe('description の 500文字制限', () => {
     it('500文字超えのdescriptionは先頭500文字のみ参照', () => {
-      const longDesc = 'a'.repeat(499) + 'ascent' + 'b'.repeat(100);
-      const result = regexExtract('coaching video', longDesc, []);
+      const longDesc = `${'a'.repeat(499)}ascent${'b'.repeat(100)}`;
+      const _result = regexExtract('coaching video', longDesc, []);
       // 'ascent' が500文字目以降に来る場合はマッチしない
-      const longDesc2 = 'a'.repeat(500) + 'ascent';
+      const longDesc2 = `${'a'.repeat(500)}ascent`;
       const result2 = regexExtract('coaching video', longDesc2, []);
       expect(result2.map.value).toBeNull();
     });
