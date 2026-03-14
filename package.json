@@ -18,7 +18,8 @@
     "typecheck": "pnpm -r --parallel run --if-present typecheck",
     "knip": "knip",
     "test": "pnpm -r --filter \"./apps/admin_studio/api\" --filter \"./packages/valorant\" run test",
-    "prepare": "lefthook install"
+    "prepare": "lefthook install",
+    "get-channel-id": "node scripts/get-channel-id.mjs"
   },
   "engines": {
     "node": ">=20.0.0",

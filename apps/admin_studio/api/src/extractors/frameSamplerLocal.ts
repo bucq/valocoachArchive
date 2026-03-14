@@ -55,11 +55,19 @@ export async function sampleGameplayFramesLocal(videoId: string): Promise<FrameI
 
   console.log(`[frameSamplerLocal] duration=${duration}s`);
 
-  // Step 3: minimap クロップ×10 + 全体フレーム×3 を並列抽出
-  const results = await Promise.allSettled([
-    ...MINIMAP_POSITIONS.map((p) => extractFrame(streamUrl, duration, p, 'minimap', MINIMAP_CROP)),
-    ...FULL_POSITIONS.map((p) => extractFrame(streamUrl, duration, p, 'full')),
-  ]);
+  // Step 3: minimap クロップ×10 + 全体フレーム×3 を並列抽出（同時実行数を制限）
+  const tasks = [
+    ...MINIMAP_POSITIONS.map(
+      (p) => () => extractFrame(streamUrl, duration, p, 'minimap', MINIMAP_CROP),
+    ),
+    ...FULL_POSITIONS.map((p) => () => extractFrame(streamUrl, duration, p, 'full')),
+  ];
+  const CONCURRENCY = 3;
+  const results: PromiseSettledResult<FrameImageData | null>[] = [];
+  for (let i = 0; i < tasks.length; i += CONCURRENCY) {
+    const batch = tasks.slice(i, i + CONCURRENCY).map((fn) => fn());
+    results.push(...(await Promise.allSettled(batch)));
+  }
 
   const frames: FrameImageData[] = [];
   for (const result of results) {
@@ -128,7 +136,7 @@ function execFileBuffer(cmd: string, args: string[]): Promise<Buffer> {
     execFile(
       cmd,
       args,
-      { encoding: 'buffer', maxBuffer: 10 * 1024 * 1024, timeout: 30_000 },
+      { encoding: 'buffer', maxBuffer: 10 * 1024 * 1024, timeout: 120_000 },
       (err, stdout) => {
         if (err) reject(err);
         else resolve(stdout as Buffer);

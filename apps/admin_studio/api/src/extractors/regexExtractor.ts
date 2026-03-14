@@ -5,51 +5,9 @@ function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-/**
- * タイトルからValorantコーチング動画かどうかを判定する。
- *
- * 条件: 下記いずれかを満たす場合に true。
- *   A) 「Valorantゲーム名」AND「コーチング/教育系ワード」
- *   B) 「コーチング/教育系ワード」AND「Valorant固有のランク名」
- *      ← ゲーム名を省略して「【コーチング】アイアン...」と書くチャンネル対応
- * ゲーム名もランク名もない場合は false（誤検知防止）。
- * ※ description は含めない（偽陽性防止）
- */
+/** タイトルにコーチングキーワードが含まれれば true */
 export function isValorantCoachingVideo(title: string): boolean {
-  const text = title.toLowerCase();
-
-  // コーチング/教育系ワード
-  const coachingPatterns = [/coaching/i, /コーチング/, /解説/];
-  const hasCoachingKeyword = coachingPatterns.some((p) => p.test(text));
-  if (!hasCoachingKeyword) return false;
-
-  // Valorantゲーム名キーワード
-  const gamePatterns = [/valorant/i, /\bvalo\b/i, /ヴァロラント/, /ヴァロ/, /\bval\b/i];
-  if (gamePatterns.some((p) => p.test(text))) return true;
-
-  // Valorant固有のランク名（ゲーム名を省略したタイトル対応）
-  const valoRankPatterns = [
-    /アイアン/,
-    /ブロンズ/,
-    /シルバー/,
-    /ゴールド/,
-    /プラチナ/,
-    /ダイヤ/,
-    /アセンダント/,
-    /イモータル/,
-    /レディアント/,
-    /\biron\b/i,
-    /\bbronze\b/i,
-    /\bsilver\b/i,
-    /\bgold\b/i,
-    /\bplatinum\b/i,
-    /\bplat\b/i,
-    /\bdiamond\b/i,
-    /\bascendant\b/i,
-    /\bimmortal\b/i,
-    /\bradiant\b/i,
-  ];
-  return valoRankPatterns.some((p) => p.test(text));
+  return /coaching/i.test(title) || /コーチング/.test(title);
 }
 
 /**

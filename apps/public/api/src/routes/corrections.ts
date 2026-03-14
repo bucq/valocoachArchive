@@ -39,7 +39,7 @@ correctionsRoute.patch('/resolve-by-video/:videoId', async (c) => {
   const db = drizzle(c.env.DB);
   const videoId = c.req.param('videoId');
   const body = await c.req.json<{ status: 'resolved' | 'dismissed' }>().catch(() => ({}));
-  const newStatus = body.status === 'dismissed' ? 'dismissed' : 'resolved';
+  const newStatus = 'status' in body && body.status === 'dismissed' ? 'dismissed' : 'resolved';
 
   await db
     .update(tagCorrectionRequests)

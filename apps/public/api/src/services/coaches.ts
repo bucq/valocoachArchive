@@ -11,5 +11,6 @@
 export const COACH_CHANNEL_IDS: string[] = [
   'UC1eCIyuRC6llpr46tL5LS8w', // tonbo
   'UCYX2lGNvaS9LN2vkwJn7lEA', // みっちー
-  `UCXEW13qpntV7pacu0Kz-9yA"`, // マザー
+  'UCXEW13qpntV7pacu0Kz-9yA', // マザ-
+  'UCq9JgzzqmEkIYlW9nM2k8ww', // 京バロ
 ];
