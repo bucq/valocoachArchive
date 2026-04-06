@@ -26,6 +26,46 @@ const _initialFilters: VideoFilters = {
 
 const siteUrl = 'https://valocoach-archive.pages.dev';
 const _ogImage = `${siteUrl}/logo.png`;
+
+// --- SEO ---
+const canonicalParams = new URLSearchParams();
+if (_initialFilters.map)   canonicalParams.set('map', _initialFilters.map);
+if (_initialFilters.agent) canonicalParams.set('agent', _initialFilters.agent);
+if (_initialFilters.rank)  canonicalParams.set('rank', _initialFilters.rank);
+if (_initialFilters.coach) canonicalParams.set('coach', _initialFilters.coach);
+const canonicalUrl = canonicalParams.size
+  ? `${siteUrl}/?${canonicalParams.toString()}`
+  : `${siteUrl}/`;
+
+const filterParts: string[] = [];
+if (_initialFilters.map)   filterParts.push(`マップ: ${_initialFilters.map}`);
+if (_initialFilters.agent) filterParts.push(`エージェント: ${_initialFilters.agent}`);
+if (_initialFilters.rank)  filterParts.push(`ランク: ${_initialFilters.rank}`);
+if (_initialFilters.coach) filterParts.push(`コーチ: ${_initialFilters.coach}`);
+const hasFilters = filterParts.length > 0;
+
+const pageTitle = hasFilters
+  ? `${filterParts.join(' / ')} | ValoCoach Archive`
+  : 'ValoCoach Archive — Valorant コーチング動画アーカイブ';
+
+const pageDescription = (() => {
+  if (!hasFilters) return 'Valorant（バロラント）のコーチング動画アーカイブ。map・agent・rank・coachで絞り込んで上達に役立つ解説動画を探せます。';
+  const parts: string[] = [];
+  if (_initialFilters.map)   parts.push(`${_initialFilters.map}マップ`);
+  if (_initialFilters.agent) parts.push(_initialFilters.agent);
+  if (_initialFilters.rank)  parts.push(`${_initialFilters.rank}帯`);
+  if (_initialFilters.coach) parts.push(`${_initialFilters.coach}コーチ`);
+  return `${parts.join('・')}のValorantコーチング動画一覧。ValoCoach Archiveで上達に役立つ解説動画を検索・視聴。`;
+})();
+
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'ValoCoach Archive',
+  url: siteUrl,
+  description: 'Valorant（バロラント）のコーチング動画アーカイブ',
+  inLanguage: 'ja',
+};
 ---
 
 <html lang="ja">
@@ -39,27 +79,33 @@ const _ogImage = `${siteUrl}/logo.png`;
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" href="/logo.png" />
 
+    <!-- canonical -->
+    <link rel="canonical" href={canonicalUrl} />
+
     <!-- Primary meta -->
-    <title>ValoCoach Archive — Valorant コーチング動画アーカイブ</title>
-    <meta name="description" content="Valorant（バロラント）のコーチング動画アーカイブ。map・agent・rank・coachで絞り込んで上達に役立つ解説動画を探せます。" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDescription} />
     <meta name="keywords" content="valorant coaching, バロラント コーチング, valorant 上達, valorant コーチング動画, valorant archive" />
     <meta name="theme-color" content="#0F1923" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="ValoCoach Archive — Valorant コーチング動画アーカイブ" />
-    <meta property="og:description" content="Valorantのコーチング動画をmap・agent・rank・coachで絞り込んで検索・視聴できるアーカイブサービス" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
     <meta property="og:image" content={_ogImage} />
     <meta property="og:image:width" content="512" />
     <meta property="og:image:height" content="512" />
-    <meta property="og:url" content={siteUrl} />
+    <meta property="og:url" content={canonicalUrl} />
     <meta property="og:site_name" content="ValoCoach Archive" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="ValoCoach Archive — Valorant Coaching Archive" />
-    <meta name="twitter:description" content="Valorantのコーチング動画をmap・agent・rank・coachでフィルタリング" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={pageDescription} />
     <meta name="twitter:image" content={_ogImage} />
+
+    <!-- JSON-LD -->
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
   </head>
   <body>
 
