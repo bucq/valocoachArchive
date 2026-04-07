@@ -16,6 +16,7 @@ jobs:
       - uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          packageManager: pnpm
           workingDirectory: apps/public/api
           command: deploy
 
@@ -32,6 +33,7 @@ jobs:
       - uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          packageManager: pnpm
           workingDirectory: apps/public/web
           command: pages deploy dist --project-name=valocoach-archive
 
@@ -51,5 +53,6 @@ jobs:
       - uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          packageManager: pnpm
           workingDirectory: apps/admin_studio/web
           command: pages deploy dist --project-name=valocoach-admin
