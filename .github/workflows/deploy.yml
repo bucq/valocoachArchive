@@ -11,7 +11,7 @@ jobs:
       - uses: pnpm/action-setup@v4
         with: { version: 9 }
       - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'pnpm' }
+        with: { node-version: '24', cache: 'pnpm' }
       - run: pnpm install --frozen-lockfile
       - uses: cloudflare/wrangler-action@v3
         with:
@@ -27,7 +27,7 @@ jobs:
       - uses: pnpm/action-setup@v4
         with: { version: 9 }
       - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'pnpm' }
+        with: { node-version: '24', cache: 'pnpm' }
       - run: pnpm install --frozen-lockfile
       - run: pnpm build:web
       - uses: cloudflare/wrangler-action@v3
@@ -44,15 +44,10 @@ jobs:
       - uses: pnpm/action-setup@v4
         with: { version: 9 }
       - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'pnpm' }
+        with: { node-version: '24', cache: 'pnpm' }
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter admin_studio-web build
         env:
           VITE_API_URL: ${{ secrets.ADMIN_API_URL }}
           VITE_ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
-      - uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          packageManager: pnpm
-          workingDirectory: apps/admin_studio/web
-          command: pages deploy dist --project-name=valocoach-admin
+      - run: pnpm deploy:admin -- --branch=main
