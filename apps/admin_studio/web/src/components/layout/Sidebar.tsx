@@ -5,8 +5,10 @@ const NAV: { id: Page; label: string; code: string }[] = [
   { id: 'collect', label: '動画収集', code: 'COLLECT' },
   { id: 'tag', label: 'タグ付け', code: 'TAGGING' },
   { id: 'review', label: 'レビュー', code: 'REVIEW' },
-  { id: 'sync', label: 'D1 同期', code: 'SYNC' },
 ];
+
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8787';
+const API_LABEL = API_URL.replace(/^https?:\/\//, '').slice(0, 28);
 
 interface Props {
   current: Page;
@@ -72,15 +74,12 @@ export default function Sidebar({ current, onNavigate }: Props) {
                     : 'transparent';
               }}
             >
-              {/* Active left border */}
               {active && (
                 <span
                   className="absolute left-0 top-0 bottom-0"
                   style={{ width: '3px', background: '#FF4655' }}
                 />
               )}
-
-              {/* Indicator */}
               <span
                 style={{
                   fontSize: '0.42rem',
@@ -90,8 +89,6 @@ export default function Sidebar({ current, onNavigate }: Props) {
               >
                 {active ? '◆' : '◇'}
               </span>
-
-              {/* Label + code */}
               <span className="flex-1">
                 <span
                   className="block font-semibold"
@@ -116,7 +113,6 @@ export default function Sidebar({ current, onNavigate }: Props) {
                   {item.code}
                 </span>
               </span>
-
               {active && <span style={{ fontSize: '0.6rem', color: '#FF4655' }}>▶</span>}
             </button>
           );
@@ -135,8 +131,11 @@ export default function Sidebar({ current, onNavigate }: Props) {
             ONLINE
           </span>
         </div>
-        <div className="text-faint" style={{ opacity: 0.5, marginTop: '0.15rem' }}>
-          localhost:3001
+        <div
+          className="text-faint"
+          style={{ opacity: 0.5, marginTop: '0.15rem', wordBreak: 'break-all' }}
+        >
+          {API_LABEL}
         </div>
       </div>
     </aside>

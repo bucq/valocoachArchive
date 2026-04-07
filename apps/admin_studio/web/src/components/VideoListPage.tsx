@@ -54,11 +54,11 @@ export default function VideoListPage() {
   const [msg, setMsg] = useState('');
 
   const fetchStats = useCallback(() => {
-    apiFetch<StatsResponse>('/api/videos/stats').then(setStats).catch(console.error);
+    apiFetch<StatsResponse>('/api/admin/videos/stats').then(setStats).catch(console.error);
   }, []);
 
   const fetchChannels = useCallback(() => {
-    apiFetch<string[]>('/api/videos/channels').then(setChannels).catch(console.error);
+    apiFetch<string[]>('/api/admin/videos/channels').then(setChannels).catch(console.error);
   }, []);
 
   const fetchVideos = useCallback(async (f: Filters, p: number) => {
@@ -73,7 +73,7 @@ export default function VideoListPage() {
       if (f.channel) params.set('coach', f.channel);
       if (f.q) params.set('q', f.q);
       if (f.coachingType) params.set('coachingType', f.coachingType);
-      const res = await apiFetch<VideoListResponse>(`/api/videos?${params}`);
+      const res = await apiFetch<VideoListResponse>(`/api/admin/videos?${params}`);
       setVideos(res.videos.map(toEditable));
       setTotal(res.total);
     } catch (e) {
@@ -114,7 +114,7 @@ export default function VideoListPage() {
   const handleSave = async (v: EditableVideo) => {
     setMsg('');
     try {
-      await apiFetch(`/api/review/${v.id}/correct`, {
+      await apiFetch(`/api/admin/review/${v.id}/correct`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -146,7 +146,9 @@ export default function VideoListPage() {
   const handleToggleHide = async (v: EditableVideo) => {
     const hidden = v.isValorantCoaching === 0;
     try {
-      await apiFetch(`/api/review/${v.id}/${hidden ? 'restore' : 'reject'}`, { method: 'POST' });
+      await apiFetch(`/api/admin/review/${v.id}/${hidden ? 'restore' : 'reject'}`, {
+        method: 'POST',
+      });
       setVideos((vs) =>
         vs.map((x) => (x.id === v.id ? { ...x, isValorantCoaching: hidden ? 1 : 0 } : x)),
       );

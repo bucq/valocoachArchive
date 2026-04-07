@@ -1,11 +1,14 @@
 import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
-import { apiFetch, type StatsResponse } from '../lib/api.ts';
-import { useSSE } from '../lib/useSSE.ts';
+import {
+  ApiError,
+  apiFetch,
+  type StatsResponse,
+  type TagPendingVideoRow,
+  type TagSingleResult,
+} from '../lib/api.ts';
 
-interface TagEvent {
-  type: string;
-  current?: number;
-  total?: number;
+interface TagLog {
+  type: 'tagged' | 'failed' | 'rate_limited' | 'done' | 'stopped';
   videoId?: string;
   title?: string;
   map?: string | null;
@@ -17,37 +20,157 @@ interface TagEvent {
   failed?: number;
 }
 
+const RATE_LIMIT_WAIT_SEC = 60;
+
 export default function TagPage() {
-  const [maxCount, setMaxCount] = useState(500);
+  const [provider, setProvider] = useState<'gemma' | 'gemini' | 'anthropic'>('gemma');
   const [dryRun, setDryRun] = useState(false);
   const [stats, setStats] = useState<StatsResponse | null>(null);
+  const [running, setRunning] = useState(false);
+  const [logs, setLogs] = useState<TagLog[]>([]);
+  const [total, setTotal] = useState(0);
+  const [current, setCurrent] = useState(0);
+  const [countdown, setCountdown] = useState(0);
   const [resetMsg, setResetMsg] = useState('');
-  const { logs, running, error, start } = useSSE<TagEvent>();
+  const stoppedRef = useRef(false);
   const logRef = useRef<HTMLDivElement>(null);
 
+  const addLog = useCallback((log: TagLog) => {
+    setLogs((prev) => [...prev, log]);
+  }, []);
+
   const fetchStats = useCallback(() => {
-    apiFetch<StatsResponse>('/api/videos/stats').then(setStats).catch(console.error);
+    apiFetch<StatsResponse>('/api/admin/videos/stats').then(setStats).catch(console.error);
   }, []);
 
   useEffect(() => {
     fetchStats();
   }, [fetchStats]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: logs is a trigger dep; not read inside the effect body
+  // biome-ignore lint/correctness/useExhaustiveDependencies: ログ追記時に末尾スクロール
   useEffect(() => {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
   }, [logs]);
 
-  const handleStart = () => {
-    start('/api/tag/batch', { maxCount, dryRun });
+  const handleStart = async () => {
+    stoppedRef.current = false;
+    setRunning(true);
+    setLogs([]);
+    setCurrent(0);
+    setTotal(0);
+    setCountdown(0);
+
+    try {
+      const { videos: pending } = await apiFetch<{ count: number; videos: TagPendingVideoRow[] }>(
+        '/api/admin/tag/pending?maxCount=500',
+      );
+
+      if (pending.length === 0) {
+        addLog({ type: 'done', processed: 0, success: 0, failed: 0 });
+        return;
+      }
+
+      setTotal(pending.length);
+      let successCount = 0;
+      let failCount = 0;
+
+      for (let i = 0; i < pending.length; i++) {
+        if (stoppedRef.current) {
+          addLog({ type: 'stopped', message: `${i} 件処理済みで停止しました` });
+          break;
+        }
+
+        const video = pending[i]!;
+        setCurrent(i + 1);
+
+        let attempt = 0;
+        let done = false;
+
+        while (!done && attempt <= 3) {
+          try {
+            const result = await apiFetch<TagSingleResult>(`/api/admin/tag/video/${video.id}`, {
+              method: 'POST',
+              body: JSON.stringify({ provider, dryRun }),
+            });
+
+            if (result.status === 'tagged') {
+              successCount++;
+              addLog({
+                type: 'tagged',
+                videoId: video.id,
+                title: video.title,
+                map: result.map,
+                agent: result.agent,
+                rank: result.rank,
+              });
+            } else {
+              failCount++;
+              addLog({
+                type: 'failed',
+                videoId: video.id,
+                title: video.title,
+                message: result.failReason,
+              });
+            }
+            done = true;
+          } catch (err) {
+            const isRateLimit =
+              (err instanceof ApiError && err.status === 429) ||
+              (err instanceof Error &&
+                (err.message.includes('429') || err.message.includes('rate_limited')));
+
+            if (isRateLimit && attempt < 3 && !stoppedRef.current) {
+              attempt++;
+              addLog({
+                type: 'rate_limited',
+                message: `レート制限。${RATE_LIMIT_WAIT_SEC}秒後にリトライ (${attempt}/3)`,
+              });
+              for (let s = RATE_LIMIT_WAIT_SEC; s > 0; s--) {
+                if (stoppedRef.current) break;
+                setCountdown(s);
+                await new Promise((r) => setTimeout(r, 1000));
+              }
+              setCountdown(0);
+            } else {
+              failCount++;
+              addLog({
+                type: 'failed',
+                videoId: video.id,
+                title: video.title,
+                message: err instanceof Error ? err.message.slice(0, 120) : String(err),
+              });
+              done = true;
+            }
+          }
+        }
+      }
+
+      if (!stoppedRef.current) {
+        addLog({
+          type: 'done',
+          processed: pending.length,
+          success: successCount,
+          failed: failCount,
+        });
+      }
+    } catch (err) {
+      addLog({ type: 'failed', message: err instanceof Error ? err.message : String(err) });
+    } finally {
+      setRunning(false);
+      setCountdown(0);
+      fetchStats();
+    }
+  };
+
+  const handleStop = () => {
+    stoppedRef.current = true;
   };
 
   const handleReset = async () => {
     setResetMsg('');
     try {
-      const res = await apiFetch<{ status: string; count: number }>('/api/tag/reset', {
+      const res = await apiFetch<{ status: string; count: number }>('/api/admin/tag/reset', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ statuses: ['complete', 'skipped', 'failed'] }),
       });
       setResetMsg(`リセット完了: ${res.count} 件を pending に戻しました`);
@@ -57,14 +180,7 @@ export default function TagPage() {
     }
   };
 
-  // Progress from logs
-  const startEvent = logs.find((l) => l.type === 'start');
-  const latestProg = [...logs].reverse().find((l) => l.type === 'progress');
-  const doneEvent = logs.find((l) => l.type === 'done');
-  const progressPct =
-    startEvent?.total && latestProg?.current
-      ? Math.round((latestProg.current / startEvent.total) * 100)
-      : 0;
+  const progressPct = total > 0 ? Math.round((current / total) * 100) : 0;
 
   return (
     <div className="animate-in space-y-5">
@@ -101,7 +217,7 @@ export default function TagPage() {
 
       {/* ── Controls ────────────────────────────── */}
       <div className="panel p-4 space-y-4">
-        <div className="section-label">一括タグ付け — Gemini Vision</div>
+        <div className="section-label">一括タグ付け — LLM Vision</div>
         <div className="flex gap-5 items-center flex-wrap">
           <label className="flex items-center gap-2 text-dim" style={{ fontSize: '0.85rem' }}>
             <span
@@ -111,17 +227,17 @@ export default function TagPage() {
                 letterSpacing: '0.08em',
               }}
             >
-              MAX
+              MODEL
             </span>
-            <input
-              type="number"
-              min={1}
-              max={9999}
+            <select
               className="field"
-              style={{ width: '6rem' }}
-              value={maxCount}
-              onChange={(e) => setMaxCount(parseInt(e.target.value, 10) || 500)}
-            />
+              value={provider}
+              onChange={(e) => setProvider(e.target.value as typeof provider)}
+            >
+              <option value="gemma">Gemma (推奨)</option>
+              <option value="gemini">Gemini</option>
+              <option value="anthropic">Anthropic</option>
+            </select>
           </label>
           <label
             className="flex items-center gap-2 text-dim cursor-pointer"
@@ -136,27 +252,34 @@ export default function TagPage() {
             <span>ドライラン（DB更新しない）</span>
           </label>
         </div>
-        <button type="button" onClick={handleStart} disabled={running} className="btn btn-accent">
-          {running ? (
-            <>
-              <span className="live-dot" style={{ marginRight: '0.4em' }} />
-              タグ付け中...
-            </>
-          ) : (
-            '▶ タグ付け開始'
+        <div className="flex gap-3">
+          <button type="button" onClick={handleStart} disabled={running} className="btn btn-accent">
+            {running ? (
+              <>
+                <span className="live-dot" style={{ marginRight: '0.4em' }} />
+                タグ付け中...
+              </>
+            ) : (
+              '▶ タグ付け開始'
+            )}
+          </button>
+          {running && (
+            <button type="button" onClick={handleStop} className="btn btn-danger">
+              ■ 停止
+            </button>
           )}
-        </button>
+        </div>
       </div>
 
-      {/* ── Progress bar ────────────────────────── */}
-      {(running || doneEvent) && startEvent?.total && (
+      {/* ── Progress ────────────────────────────── */}
+      {(running || logs.some((l) => l.type === 'done')) && total > 0 && (
         <div className="panel p-4 space-y-3">
           <div className="flex justify-between items-center">
             <span
               className="text-dim"
               style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.75rem' }}
             >
-              {latestProg ? `${latestProg.current} / ${startEvent.total}` : '開始中...'}
+              {countdown > 0 ? `レート制限 — ${countdown}s 待機中...` : `${current} / ${total}`}
             </span>
             <span
               className="text-accent font-bold"
@@ -166,22 +289,19 @@ export default function TagPage() {
             </span>
           </div>
           <div className="progress-track">
-            <div className="progress-fill" style={{ width: `${progressPct}%` }} />
+            <div
+              className="progress-fill"
+              style={{
+                width: `${progressPct}%`,
+                background: countdown > 0 ? '#FFB84A' : undefined,
+              }}
+            />
           </div>
-          {doneEvent && (
-            <p
-              className="text-ok"
-              style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.75rem' }}
-            >
-              ✔ 完了 — 処理: {doneEvent.processed}, 成功: {doneEvent.success}, 失敗:{' '}
-              {doneEvent.failed}
-            </p>
-          )}
         </div>
       )}
 
-      {/* ── SSE Log ─────────────────────────────── */}
-      {(logs.length > 0 || error) && (
+      {/* ── Log ─────────────────────────────────── */}
+      {logs.length > 0 && (
         <div className="terminal">
           <div className="terminal-header">
             <span>// TAG LOG</span>
@@ -193,13 +313,9 @@ export default function TagPage() {
             )}
           </div>
           <div ref={logRef} className="terminal-body" style={{ height: '18rem' }}>
-            {error && <p style={{ color: '#FF4655' }}>ERROR: {error}</p>}
             {logs.map((ev, i) => (
-              <TagLogLine
-                // biome-ignore lint/suspicious/noArrayIndexKey:  append-only SSE log; items are never reordered or removed
-                key={i}
-                event={ev}
-              />
+              // biome-ignore lint/suspicious/noArrayIndexKey: append-only log
+              <TagLogLine key={i} event={ev} />
             ))}
           </div>
         </div>
@@ -211,7 +327,7 @@ export default function TagPage() {
         <p className="text-dim" style={{ fontSize: '0.82rem' }}>
           complete / skipped / failed を pending に戻します（再タグ付け用）。
         </p>
-        <button type="button" onClick={handleReset} className="btn btn-danger">
+        <button type="button" onClick={handleReset} disabled={running} className="btn btn-danger">
           リセット実行
         </button>
         {resetMsg && (
@@ -227,28 +343,19 @@ export default function TagPage() {
   );
 }
 
-function TagLogLine({ event }: { event: TagEvent }) {
+function TagLogLine({ event }: { event: TagLog }) {
   switch (event.type) {
-    case 'start':
-      return <p style={{ color: '#4A9EFF' }}>▶ 開始 — 対象: {event.total} 件</p>;
-    case 'progress':
-      return (
-        <p style={{ color: '#444450' }}>
-          [{event.current}/{event.total}] {event.title}
-        </p>
-      );
     case 'tagged':
       return (
         <p style={{ color: '#45D483' }}>
-          {' '}
-          ✔ {event.title} → map:{event.map} agent:{event.agent} rank:{event.rank}
+          ✔ {event.title} → map:{event.map ?? '—'} agent:{event.agent ?? '—'} rank:
+          {event.rank ?? '—'}
         </p>
       );
     case 'failed':
       return (
         <p style={{ color: '#FF4655' }}>
-          {' '}
-          ✘ {event.title}: {event.message}
+          ✘ {event.title ?? event.videoId}: {event.message}
         </p>
       );
     case 'rate_limited':
@@ -259,6 +366,8 @@ function TagLogLine({ event }: { event: TagEvent }) {
           ✔ 完了 処理:{event.processed} 成功:{event.success} 失敗:{event.failed}
         </p>
       );
+    case 'stopped':
+      return <p style={{ color: '#888896' }}>■ {event.message}</p>;
     default:
       return <p style={{ color: '#888896' }}>{JSON.stringify(event)}</p>;
   }

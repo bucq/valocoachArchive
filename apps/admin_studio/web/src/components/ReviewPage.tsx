@@ -172,7 +172,7 @@ export default function ReviewPage() {
     setLoading(true);
     try {
       const res = await apiFetch<{ count: number; page: number; limit: number; videos: Video[] }>(
-        `/api/review?page=${p}&limit=20`,
+        `/api/admin/review?page=${p}&limit=20`,
       );
       const base = res.videos.map((v) => ({
         ...v,
@@ -212,7 +212,7 @@ export default function ReviewPage() {
   const handleCorrect = async (v: ReviewVideo) => {
     setMsg('');
     try {
-      await apiFetch(`/api/review/${v.id}/correct`, {
+      await apiFetch(`/api/admin/review/${v.id}/correct`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -231,7 +231,7 @@ export default function ReviewPage() {
 
   const handleApprove = async (v: ReviewVideo) => {
     try {
-      await apiFetch(`/api/review/${v.id}/approve`, { method: 'POST' });
+      await apiFetch(`/api/admin/review/${v.id}/approve`, { method: 'POST' });
       await resolveVideoCorrections(v.id, 'dismissed').catch(() => {});
       setVideos((vs) => vs.filter((x) => x.id !== v.id));
     } catch (e) {
@@ -241,7 +241,7 @@ export default function ReviewPage() {
 
   const handleReject = async (v: ReviewVideo) => {
     try {
-      await apiFetch(`/api/review/${v.id}/reject`, { method: 'POST' });
+      await apiFetch(`/api/admin/review/${v.id}/reject`, { method: 'POST' });
       await resolveVideoCorrections(v.id, 'dismissed').catch(() => {});
       setVideos((vs) => vs.filter((x) => x.id !== v.id));
     } catch (e) {

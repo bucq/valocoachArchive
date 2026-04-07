@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 
-const BASE = 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8787';
+const ADMIN_TOKEN = import.meta.env.VITE_ADMIN_TOKEN ?? '';
 
 export function useSSE<T>() {
   const [logs, setLogs] = useState<T[]>([]);
@@ -12,9 +13,12 @@ export function useSSE<T>() {
     setError(null);
     setRunning(true);
 
-    fetch(`${BASE}${path}`, {
+    fetch(`${API_URL}${path}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Admin-Token': ADMIN_TOKEN,
+      },
       body: JSON.stringify(body),
     })
       .then(async (res) => {

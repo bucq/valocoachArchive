@@ -3,21 +3,20 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
+    "dev": "concurrently -n api,web,admin -c cyan,green,yellow \"pnpm dev:api\" \"pnpm dev:web\" \"pnpm dev:admin-web\"",
     "dev:web": "pnpm --filter valocoach-archive-web dev",
     "dev:api": "pnpm --filter valocoach-archive-api dev",
     "dev:admin-web": "pnpm --filter admin_studio-web dev",
-    "dev:admin-api": "pnpm --filter admin_studio-api dev",
     "build:web": "pnpm --filter valocoach-archive-web build",
     "build:api": "pnpm --filter valocoach-archive-api build",
     "deploy:api": "pnpm --filter valocoach-archive-api deploy",
     "deploy:web": "pnpm --filter valocoach-archive-web deploy",
-    "dev:admin": "pnpm --parallel --filter \"admin_studio-*\" dev",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
     "typecheck": "pnpm -r --parallel run --if-present typecheck",
     "knip": "knip",
-    "test": "pnpm -r --filter \"./apps/admin_studio/api\" --filter \"./packages/valorant\" run test",
+    "test": "pnpm -r --filter \"./packages/valorant\" run test",
     "prepare": "lefthook install",
     "get-channel-id": "node scripts/get-channel-id.mjs"
   },
@@ -27,6 +26,8 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.6",
+    "@types/node": "^25.5.2",
+    "concurrently": "^9.2.1",
     "knip": "^5.0.0",
     "lefthook": "^1.11.0"
   }

@@ -24,7 +24,7 @@ export default function CollectPage() {
   const logRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    apiFetch<{ channels: Channel[] }>('/api/collect/channels')
+    apiFetch<{ channels: Channel[] }>('/api/admin/collect/channels')
       .then((r) => setChannels(r.channels))
       .catch(console.error);
   }, []);
@@ -34,12 +34,14 @@ export default function CollectPage() {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
   }, [logs]);
 
-  const collectAll = () => start('/api/collect/all', { maxPerChannel: 9999 });
+  const collectAll = () => start('/api/admin/collect/all', { maxPerChannel: 9999 });
   const collectOne = () => {
-    if (channelId.trim()) start(`/api/collect/channel/${channelId.trim()}`, { maxResults: 9999 });
+    if (channelId.trim())
+      start(`/api/admin/collect/channel/${channelId.trim()}`, { maxResults: 9999 });
   };
   const collectSearch = () => {
-    if (searchQuery.trim()) start('/api/collect/search', { query: searchQuery.trim(), maxResults });
+    if (searchQuery.trim())
+      start('/api/admin/collect/search', { query: searchQuery.trim(), maxResults });
   };
 
   const realChannels = channels.filter((c) => !c.placeholder);

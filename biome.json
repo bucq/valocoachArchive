@@ -64,6 +64,8 @@
       "!!**/.wrangler",
       "!!**/node_modules",
       "!!**/catalogData.ts",
+      "!!**/catalogData.js",
+      "!!apps/public/api/src/**/*.js",
       "!!**/*.css",
       "!!**/*.astro"
     ]

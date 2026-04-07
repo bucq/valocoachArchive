@@ -4,24 +4,16 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch --env-file=.env src/index.ts",
-    "start": "tsx --env-file=.env src/index.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
     "test:gemma": "tsx --env-file=.env test-llm.ts gemma",
     "test:gemini": "tsx --env-file=.env test-llm.ts gemini",
     "test:anthropic": "tsx --env-file=.env test-llm.ts anthropic"
   },
   "dependencies": {
-    "@valocoach/valorant": "workspace:*",
-    "hono": "^4.7.11",
-    "@hono/node-server": "^1.13.7",
-    "better-sqlite3": "^11.9.1",
-    "drizzle-orm": "^0.40.1"
+    "@valocoach/valorant": "workspace:*"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^22.13.5",
     "@vitest/coverage-v8": "^3.0.0",
     "tsx": "^4.19.3",
