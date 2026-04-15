@@ -24,7 +24,9 @@ app.use(
     origin: (origin) => {
       if (!origin) return null;
       if (origin === 'http://localhost:4321') return origin;
+      if (origin === 'http://localhost:5173') return origin;
       if (origin.endsWith('.bucq.workers.dev')) return origin;
+      if (origin.endsWith('.pages.dev')) return origin;
       return null;
     },
     allowMethods: ['GET', 'POST'],
